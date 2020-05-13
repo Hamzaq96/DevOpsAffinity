@@ -1,0 +1,24 @@
+version: '3.3'
+
+services:
+   db:
+     image: hshar/mysql:5.5
+     volumes:
+       - db_data:/var/lib/mysql
+     restart: always
+     environment:
+      MYSQL_ROOT_PASSWORD: edureka
+      MYSQL_DATABASE: HandsOn
+      MYSQL_USER: webapp
+      MYSQL_PASSWORD: webapp
+
+   webapp:
+     depends_on:
+       - db
+     image: hshar/webapp
+     ports:
+       - "8001:80"
+     restart: always
+
+volumes:
+    db_data: {}

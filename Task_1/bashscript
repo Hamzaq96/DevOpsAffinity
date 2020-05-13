@@ -1,0 +1,94 @@
+#!/bin/bash
+
+#This is a server monitor script.
+
+log=log_file.txt
+
+date >> $log
+
+if [ "$1" = "1" ]
+then
+    ram=` grep 'MemTotal' /proc/meminfo ` #stores the total RAM size in the variable ram.
+
+    echo RAM: ${ram}
+
+    echo RAM: ${ram} >> $log #logs it into the log file.
+
+elif [ "$1" = "2" ]
+then
+    available=` df -h --output=avail $2 ` #stores the total storage space in the variable available.
+
+    if [ "$2" = "" ]
+    then
+        echo "please enter a valid mount point." #error handling when the user does not give a valid mount point.
+        echo  "please enter a valid mount point." >> $log #logs it into the log file.
+    else
+        echo -e "storage space available in $2:\n" ${available} #echos the storage space available.
+        echo  "The storage space available was retrieved ${available}" >> $log #logs it into the log file.
+    fi
+
+elif [ "$1" = "3" ]
+then
+    process=` ps -U $2 -o user,uid,comm,pid,pcpu,tty --sort=-pcpu | head -n 6 ` #stores the top 5 process of the user passed in the argument.
+    
+    if [ "$2" = "" ]
+    then
+        echo "please enter a valid username." #error handling when the user does not enter a valid username.
+        echo  "please enter a valid username." >> $log #logs it into the log file.
+    else
+        echo -e "Top 5 process for $2:\n"  ${process} #echos the storage space available.
+        echo  "Top 5 process for $2: ${process}" >> $log #logs it into the log file.
+    fi
+
+elif [ "$1" = "4" ]
+then
+    ports=` lsof -Pan -i ` #passes the list of all the open ports to the ports variable.
+
+    echo -e "Open ports:\n" ${ports}
+    echo  "Open ports: ${ports}" >> $log #logs it into the log file.
+
+elif [ "$1" = "5" ]
+then
+    cache=` sudo sh -c 'free && sync && echo 3 > /proc/sys/vm/drop_caches && free' ` #cleans the cache.
+
+    echo -e "Cache cleaned\n" ${cache}
+    echo  "Cache Cleaned" >> $log #logs it into the log file.
+
+elif [ "$1" = "6" ]
+then
+    files=` ls $2 -mhlS --block-size=M | grep '^-' `
+
+    if [ "$2" = "" ]
+    then
+        echo "please enter a valid directory." #error handling when the user does not enter a valid directory.
+        echo  "please enter a valid directory." >> $log #logs it into the log file.
+    else
+        echo -e "Files for the directory $2:\n" ${files} #echos the files in the user specified directoy.
+        echo  "Files for the directory $2: ${files}" >> $log #logs it into the log file.
+    fi
+
+elif [ "$1" = "7" ]
+then
+    folders=` ls $2 -dhlS */ --block-size=M `
+
+    if [ "$2" = "" ]
+    then
+        echo "please enter a valid directory." #error handling when the user does not enter a valid directory.
+        echo  "please enter a valid directory." >> $log #logs it into the log file.
+    else
+        echo -e "Folders for the directory $2:\n" ${folders} #echos the folders in the user specified directoy.
+        echo  "Folders for the directory $2: ${folders}" >> $log #logs it into the log file.
+    fi
+
+else    #the menu will be displayed whenever the user does not enter a valid argument.
+    echo -e --------------Menu--------------------- "\n"
+    echo -e "Enter an argument of 1 to display total RAM available.\n"
+    echo -e "Enter an argument of 2 to display total storage space available for a mount point.\n"
+    echo -e "Enter an argument of 3 to list top 5 processes for a specific user.\n"
+    echo -e "Enter an argument of 4 list the ports exposed and the process associate with it.\n"
+    echo -e "Enter an argument of 5 if you want free up cached memory.\n"
+    echo -e "Enter an argument of 6 to list the files in a given directory with their size in MBs, and sort them with descending order.\n"
+    echo -e "Enter an argument of 7 to list the folders in a given directory with their size in MBs, and sort them with descending order.\n"
+    echo ----------------------------------------
+    echo  "Displayed the menu." >> $log #logs it into the log file.
+fi
